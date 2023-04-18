@@ -1,0 +1,112 @@
+
+      <style>
+    body {
+  background: #eecda3;
+  background: -webkit-linear-gradient(to right, #eecda3, #ef629f);
+  background: linear-gradient(to right, #eecda3, #ef629f);
+  min-height: 100vh;
+}
+
+  </style>
+<section>
+  <table class="table mt-5">
+  
+    <thead>
+      <tr>
+        <th scope="col">item</th>
+        
+        <th scope="col">Name</th>
+        <th scope="col">Price</th>
+       <th scope="col">quantity</th>
+       <th scope="col">Action</th>
+       </tr>
+
+    </thead>
+    <tbody>
+    {{#each products}}
+
+      <tr>
+    
+
+        <td><img  src="/product-images/{{this.product._id}}.jpg" alt=""></td>
+        <td>{{this.product.Name}}</td>
+          <td>{{this.product.Price}}</td>
+     
+        <td>
+          <button class="cart-item-count mr-3"onclick="chaneQuantity('{{this._id}}','{{this.product._id}}','{{../user}}',-1)">-</button>
+          <span id="{{this.product._id}}">{{this.quantity}}</span>
+          <button class="cart-item-count mr-3" onclick="chaneQuantity('{{this._id}}','{{this.product._id}}','{{../user}}',1)">+</button>
+        </td>
+        <td>
+          <button class="btn btn-danger"onclick="removeProduct('{{this._id}}','{{this.product._id}}')"> Remove</button> 
+          
+        </td>
+      </tr>
+      {{/each}}
+    </tbody>  
+  </table>
+  </div>
+                    
+</section>
+<section>
+
+    
+ <div class="order_total">
+                         <div class="order_total_content text-md-right">
+                             <div class="order_total_title mr-5"><h3>Order Total:</h3></div>
+                             <div class="order_total_amount mr-5" ><h2><span id="total">{{total}}</span></h2></div>
+                         </div>
+                     </div>
+                     <div class="cart_buttons float-right mr-3 "> 
+                      <button type="button" class="button btn btn-info mt-3">Continue Shopping</button>
+                       <button type="button" class="btn btn-dark mt-3"> <a href="/place-order">Place order</a></button> 
+                       </div>
+                  </a>
+</section>
+
+<script>
+  function chaneQuantity(cartId,proId,userId,count){
+    let quantity = parseInt(document.getElementById(proId).innerHTML)
+    count=parseInt(count)
+    $.ajax({
+      url:'/change-product-quantity',
+      data:{
+        user:userId, 
+        cart:cartId,
+        product:proId,
+        count:count,
+        quantity:quantity
+      },
+      method:'post',
+      success:(response)=>{
+        if(response.removeProduct){
+          alert("product removed from the cart")
+          location.reload()
+        }else{
+            document.getElementById(proId).innerHTML=quantity+count
+            document.getElementById('total').innerHTML=response.total
+        }
+        
+      }
+    })
+  }
+</script>
+<script>
+  function removeProduct(cartId,proId){
+    $.ajax({
+      url:'/delete-cart-product/',
+      data:{
+      cart:cartId,
+      product:proId
+      },
+      method:'post',
+      success:(response)=>{
+        if(response.deleteProduct){
+          alert('confirm to delete ?')
+          location.reload()
+        }
+
+      }
+    })
+  }
+</script>
